@@ -227,11 +227,11 @@ termination,2025-07-09,Administration,Admin_assistant,54321,Jane Smith`;
 
       // Upload to Firebase with correct structure
       const response = await fetch(`https://stocktaking-5b7a8-default-rtdb.firebaseio.com/${selectedType}.json`, {
-        method: 'PUT',
-        headers: {
+       method: 'PATCH',
+       headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(parsedData),
+       },
+       body: JSON.stringify(parsedData),
       });
 
       if (!response.ok) {
