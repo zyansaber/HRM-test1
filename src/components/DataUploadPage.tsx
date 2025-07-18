@@ -226,24 +226,17 @@ termination,2025-07-09,Administration,Admin_assistant,54321,Jane Smith`;
       }
 
       // Upload to Firebase with correct structure
-      const uploadPromises = Object.entries(parsedData).map(async ([dept, deptData]) => {
-        const url = `https://stocktaking-5b7a8-default-rtdb.firebaseio.com/${selectedType}/${dept}/${selectedDate}.json`;
-        const response = await fetch(url, {
-          method: 'PATCH',
+      const response = await fetch(`https://stocktaking-5b7a8-default-rtdb.firebaseio.com/${selectedType}.json`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(deptData),
-        });
-        return response;
+        body: JSON.stringify(parsedData),
       });
 
-      const responses = await Promise.all(uploadPromises);
-      const failed = responses.find(r => !r.ok);
-      if (failed) {
-        throw new Error(`Upload failed with status: ${failed.status}`);
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status}`);
       }
-
       
       setUploadStatus('success');
       setUploadMessage(`Successfully uploaded ${selectedFile.name} to Firebase ${selectedType} database. Data is now available in the dashboard.`);
