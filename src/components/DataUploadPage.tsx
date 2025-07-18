@@ -239,10 +239,11 @@ termination,2025-07-09,Administration,Admin_assistant,54321,Jane Smith`;
       });
 
       const responses = await Promise.all(uploadPromises);
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
+      const failed = responses.find(r => !r.ok);
+      if (failed) {
+        throw new Error(`Upload failed with status: ${failed.status}`);
       }
+
       
       setUploadStatus('success');
       setUploadMessage(`Successfully uploaded ${selectedFile.name} to Firebase ${selectedType} database. Data is now available in the dashboard.`);
