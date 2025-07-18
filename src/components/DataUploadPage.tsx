@@ -226,13 +226,44 @@ termination,2025-07-09,Administration,Admin_assistant,54321,Jane Smith`;
       }
 
       // Upload to Firebase with correct structure
-      const response = await fetch(`https://stocktaking-5b7a8-default-rtdb.firebaseio.com/${selectedType}.json`, {
+      const firebasePath = `https://stocktaking-5b7a8-default-rtdb.firebaseio.com/${selectedType}.json`;
+      const existingRes = await fetch(firebasePath);
+      const existingData = await existingRes.json() || {};
+
+      const mergedData = { ...existingData };
+
+      Object.entries(parsedData).forEach(([dept, locations]) => {
+        if (!mergedData[dept]) mergedData[dept] = {};
+
+        Object.entries(locations).forEach(([loc, empRecords]) => {
+          if (!mergedData[dept][loc]) mergedData[dept][loc] = {};
+
+          Object.entries(empRecords).forEach(([empId, content]) => {
+            if (!mergedData[dept][loc][empId]) {
+              mergedData[dept][loc][empId] = {};
+            }
+
+            if ('Name' in content) {
+              mergedData[dept][loc][empId]['Name'] = content['Name'];
+            }
+
+            Object.entries(content).forEach(([date, value]) => {
+              if (date !== 'Name') {
+                mergedData[dept][loc][empId][date] = value;
+              }
+            });
+          });
+        });
+      });
+
+      const response = await fetch(firebasePath, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(parsedData),
+        body: JSON.stringify(mergedData),
       });
+
 
       if (!response.ok) {
         throw new Error(`Upload failed: ${response.status}`);
