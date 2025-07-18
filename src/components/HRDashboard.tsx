@@ -171,7 +171,7 @@ export const HRDashboard = () => {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 overflow-auto relative">
+        <div className="flex-1 min-w-0 overflow-auto relative">
           {/* 滚动的部门背景 */}
           <div className="absolute inset-6 overflow-hidden opacity-5 rounded-lg pointer-events-none">
             <div className="animate-scroll-slow whitespace-nowrap h-full flex items-center">
