@@ -1,4 +1,5 @@
-import { Button } from '@/components/ui/button';
+import { useMemo } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 interface TimeFilterProps {
   selectedPeriod: string;
@@ -7,57 +8,67 @@ interface TimeFilterProps {
 }
 
 export const TimeFilter = ({ selectedPeriod, onPeriodChange, availableDates }: TimeFilterProps) => {
-  // Generate all months of 2025
-  const allMonths = [
-    { value: 'overall', label: 'Overall', short: 'All' },
-    { value: '2025-01', label: 'January', short: 'Jan' },
-    { value: '2025-02', label: 'February', short: 'Feb' },
-    { value: '2025-03', label: 'March', short: 'Mar' },
-    { value: '2025-04', label: 'April', short: 'Apr' },
-    { value: '2025-05', label: 'May', short: 'May' },
-    { value: '2025-06', label: 'June', short: 'Jun' },
-    { value: '2025-07', label: 'July', short: 'Jul' },
-    { value: '2025-08', label: 'August', short: 'Aug' },
-    { value: '2025-09', label: 'September', short: 'Sep' },
-    { value: '2025-10', label: 'October', short: 'Oct' },
-    { value: '2025-11', label: 'November', short: 'Nov' },
-    { value: '2025-12', label: 'December', short: 'Dec' }
-  ];
+  const groupedByMonth = useMemo(() => {
+    const monthMap: Record<string, string[]> = {};
+    availableDates.forEach(date => {
+      const month = date.slice(0, 7); // '2025-07'
+      if (!monthMap[month]) monthMap[month] = [];
+      monthMap[month].push(date);
+    });
+    return monthMap;
+  }, [availableDates]);
 
-  // Check if month has data
-  const hasData = (monthValue: string) => {
-    if (monthValue === 'overall') return true;
-    return availableDates.some(date => date.startsWith(monthValue));
-  };
+  const allMonths = Array.from({ length: 12 }, (_, i) => `2025-${String(i + 1).padStart(2, '0')}`);
 
   return (
     <div className="space-y-3">
-      <label className="text-sm font-medium text-gray-700">Time Period</label>
-      <div className="grid grid-cols-4 gap-2">
-        {allMonths.map(month => (
-          <Button
-            key={month.value}
-            variant={selectedPeriod === month.value ? "default" : "outline"}
-            size="sm"
-            onClick={() => onPeriodChange(month.value)}
-            className={`
-              relative transition-all duration-200 text-xs
-              ${selectedPeriod === month.value 
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg' 
-                : hasData(month.value)
-                  ? 'hover:bg-blue-50 hover:border-blue-300'
-                  : 'opacity-50 text-gray-400 cursor-not-allowed'
-              }
-            `}
-            disabled={!hasData(month.value)}
-          >
-            {month.short}
-            {hasData(month.value) && month.value !== 'overall' && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
-            )}
-          </Button>
-        ))}
+      <div className="text-xs text-gray-400 uppercase tracking-wide">Time Period</div>
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          onClick={() => onPeriodChange('overall')}
+          className={`py-2 text-sm rounded-md font-medium transition-colors border border-gray-200 hover:bg-gray-100 ${
+            selectedPeriod === 'overall' ? 'bg-blue-100 text-blue-800' : 'bg-white'
+          }`}
+        >
+          Overall
+        </button>
+        {allMonths.map(month => {
+          const hasData = !!groupedByMonth[month];
+          return (
+            <div key={month} className="relative">
+              <button
+                onClick={() => onPeriodChange(month)}
+                disabled={!hasData}
+                className={`w-full py-2 text-sm rounded-md font-medium transition-colors border border-gray-200 hover:bg-gray-100 ${
+                  selectedPeriod === month ? 'bg-blue-100 text-blue-800' : 'bg-white'
+                } ${!hasData ? 'opacity-40 cursor-not-allowed' : ''}`}
+              >
+                {new Date(month + '-01').toLocaleDateString('en-US', { month: 'short' })}
+              </button>
+              {hasData && (
+                <div className="absolute top-1 right-1">
+                  <span className="block h-2 w-2 rounded-full bg-green-500" />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {selectedPeriod !== 'overall' && groupedByMonth[selectedPeriod] && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {groupedByMonth[selectedPeriod].map(date => (
+            <Badge
+              key={date}
+              variant={selectedPeriod === date ? 'default' : 'secondary'}
+              onClick={() => onPeriodChange(date)}
+              className="cursor-pointer"
+            >
+              {date}
+            </Badge>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
