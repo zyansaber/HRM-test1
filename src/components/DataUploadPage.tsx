@@ -54,30 +54,27 @@ export const DataUploadPage = () => {
         });
         return overtimeData;
 
-case 'Payment':
-  const paymentData: any = {};
-  rawData.forEach(row => {
-    const dept = row.Department;
-    const location = row.Location;
-    const empId = row.EmployeeID;
-    const date = selectedDate;
-
-    if (!paymentData[dept]) paymentData[dept] = {};
-    if (!paymentData[dept][location]) paymentData[dept][location] = {};
-    if (!paymentData[dept][location][empId]) paymentData[dept][location][empId] = {};
-
-    // 单独写 Name，只设置一次
-    if (!paymentData[dept][location][empId]['Name']) {
-      paymentData[dept][location][empId]['Name'] = row.Name || 'Unknown';
-    }
-
-    // 👇 正确追加日期内容，不覆盖已有数据
-    paymentData[dept][location][empId][date] = {
-      Payment: row.Payment || '$0.00'
-    };
-  });
-  return paymentData;
-
+      case 'Payment':
+        const paymentData: any = {};
+        rawData.forEach(row => {
+          const dept = row.Department;
+          const location = row.Location;
+          const empId = row.EmployeeID;
+          const date = selectedDate;
+          
+          if (!paymentData[dept]) paymentData[dept] = {};
+          if (!paymentData[dept][location]) paymentData[dept][location] = {};
+          if (!paymentData[dept][location][empId]) {
+            paymentData[dept][location][empId] = {
+              Name: row.Name || 'Unknown'
+            };
+          }
+          
+          paymentData[dept][location][empId][date] = {
+            Payment: row.Payment || '$0.00'
+          };
+        });
+        return paymentData;
 
       case 'Absenteeism':
         const absenteeismData: any = {};
@@ -230,11 +227,11 @@ termination,2025-07-09,Administration,Admin_assistant,54321,Jane Smith`;
 
       // Upload to Firebase with correct structure
       const response = await fetch(`https://stocktaking-5b7a8-default-rtdb.firebaseio.com/${selectedType}.json`, {
-       method: 'PATCH',
-       headers: {
+        method: 'PUT',
+        headers: {
           'Content-Type': 'application/json',
-       },
-       body: JSON.stringify(parsedData),
+        },
+        body: JSON.stringify(parsedData),
       });
 
       if (!response.ok) {
