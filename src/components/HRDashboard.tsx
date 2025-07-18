@@ -159,7 +159,7 @@ export const HRDashboard = () => {
 
         {/* Department Sidebar - Compact */}
         {activeTab === 'dashboard' && (
-          <div className="w-95 bg-gradient-to-b from-gray-50 to-gray-100 border-r shadow-sm">
+          <div className="w-85 bg-gradient-to-b from-gray-50 to-gray-100 border-r shadow-sm">
             <div className="p-3 h-full overflow-auto">
               <DepartmentSidebar
                 departments={allDepartments}
