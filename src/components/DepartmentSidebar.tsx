@@ -29,7 +29,7 @@ export const DepartmentSidebar = ({
       <CardContent className="p-0 h-full">
         <ScrollArea className="h-full">
           <div>
-            <CardHeader className="pb-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-lg">
+            <CardHeader className="pb-4 px-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-lg">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Building className="h-5 w-5 text-blue-600" />
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
