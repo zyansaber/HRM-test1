@@ -239,7 +239,6 @@ termination,2025-07-09,Administration,Admin_assistant,54321,Jane Smith`;
       });
 
       const responses = await Promise.all(uploadPromises);
-      });
 
       if (!response.ok) {
         throw new Error(`Upload failed: ${response.status}`);
