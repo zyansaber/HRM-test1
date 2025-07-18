@@ -212,9 +212,9 @@ export const HRDashboard = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="flex flex-col md:flex-row gap-6">
                       {/* Overall MTD/YTD */}
-                      <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                       <div className="w-full md:w-[280px] text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
                         <h3 className="font-semibold text-lg mb-2">
                           {selectedDepartment ? `${selectedDepartment} Performance` : 'Overall Performance'}
                         </h3>
