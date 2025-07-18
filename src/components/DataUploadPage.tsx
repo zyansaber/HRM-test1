@@ -54,27 +54,30 @@ export const DataUploadPage = () => {
         });
         return overtimeData;
 
-      case 'Payment':
-        const paymentData: any = {};
-        rawData.forEach(row => {
-          const dept = row.Department;
-          const location = row.Location;
-          const empId = row.EmployeeID;
-          const date = selectedDate;
-          
-          if (!paymentData[dept]) paymentData[dept] = {};
-          if (!paymentData[dept][location]) paymentData[dept][location] = {};
-          if (!paymentData[dept][location][empId]) {
-            paymentData[dept][location][empId] = {
-              Name: row.Name || 'Unknown'
-            };
-          }
-          
-          paymentData[dept][location][empId][date] = {
-            Payment: row.Payment || '$0.00'
-          };
-        });
-        return paymentData;
+case 'Payment':
+  const paymentData: any = {};
+  rawData.forEach(row => {
+    const dept = row.Department;
+    const location = row.Location;
+    const empId = row.EmployeeID;
+    const date = selectedDate;
+
+    if (!paymentData[dept]) paymentData[dept] = {};
+    if (!paymentData[dept][location]) paymentData[dept][location] = {};
+    if (!paymentData[dept][location][empId]) paymentData[dept][location][empId] = {};
+
+    // 单独写 Name，只设置一次
+    if (!paymentData[dept][location][empId]['Name']) {
+      paymentData[dept][location][empId]['Name'] = row.Name || 'Unknown';
+    }
+
+    // 👇 正确追加日期内容，不覆盖已有数据
+    paymentData[dept][location][empId][date] = {
+      Payment: row.Payment || '$0.00'
+    };
+  });
+  return paymentData;
+
 
       case 'Absenteeism':
         const absenteeismData: any = {};
