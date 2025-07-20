@@ -63,7 +63,7 @@ export const HRDashboard = () => {
     );
   }
 
-  const metrics = getMetricsSummary(selectedPeriod, selectedDepartment);
+  const metrics = getMetricsSummary(selectedPeriod, null);
   const departmentSummary = getDepartmentSummary(selectedPeriod, selectedDepartment);
   const allDepartments = getDepartmentSummary();
   const trendData = getTrendData(selectedDepartment);
