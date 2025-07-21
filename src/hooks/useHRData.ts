@@ -133,6 +133,7 @@ export const useHRData = () => {
       totalPayments,
       totalPaymentAmount
     };
+  };
 
   const getDepartmentSummary = (selectedPeriod?: string, selectedDepartment?: string | null): DepartmentSummary[] => {
     if (!data) return [];
@@ -435,3 +436,6 @@ return {
     getEmployeeCount,
     getStarterTerminationCounts
   };
+};
+
+}
