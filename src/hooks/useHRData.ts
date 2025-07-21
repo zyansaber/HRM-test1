@@ -437,5 +437,3 @@ return {
     getStarterTerminationCounts
   };
 };
-
-}
