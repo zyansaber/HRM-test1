@@ -134,5 +134,4 @@ export const useHRData = () => {
       totalPaymentAmount
     };
   };
-
 };
