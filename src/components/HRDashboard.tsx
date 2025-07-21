@@ -333,7 +333,7 @@ export const HRDashboard = () => {
                 <RingPaymentChart data={departmentSummary} />
 
                 {/* Department Details Table */}
-                <DepartmentTable data={departmentSummary} /
+                <DepartmentTable data={departmentSummary} />
               </TabsContent>
 
               <TabsContent value="analysis">
