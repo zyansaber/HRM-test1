@@ -356,7 +356,42 @@ export const useHRData = () => {
     return { starters, terminations };
   };
 
-  return {
+  
+  const getAvailableDates = (): { months: string[], datesByMonth: Record<string, string[]> } => {
+    if (!data) return { months: [], datesByMonth: {} };
+
+    const dateSet = new Set<string>();
+
+    const extractDates = (obj: any) => {
+      Object.values(obj || {}).forEach((dept: any) => {
+        Object.values(dept).forEach((location: any) => {
+          if (typeof location === 'object') {
+            Object.keys(location).forEach((dateKey) => {
+              if (/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+                dateSet.add(dateKey);
+              }
+            });
+          }
+        });
+      });
+    };
+
+    extractDates(data.Overtime);
+    extractDates(data.Payment);
+    extractDates(data.Absenteeism);
+
+    const dates = Array.from(dateSet).sort();
+    const months = Array.from(new Set(dates.map(d => d.slice(0, 7)))).sort();
+
+    const datesByMonth: Record<string, string[]> = {};
+    for (const month of months) {
+      datesByMonth[month] = dates.filter(d => d.startsWith(month));
+    }
+
+    return { months, datesByMonth };
+  };
+
+return {
     data,
     loading,
     error,
