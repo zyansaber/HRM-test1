@@ -22,7 +22,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export const HRDashboard = () => {
   const { data, loading, error, getMetricsSummary, getDepartmentSummary, getTrendData, getAvailableDates, getEmployeeCount, getStarterTerminationCounts } = useHRData();
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState('overall');
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
 
   if (loading) {
@@ -63,13 +64,13 @@ export const HRDashboard = () => {
     );
   }
 
-  const metrics = getMetricsSummary(selectedPeriod, selectedDepartment);
-  const departmentSummary = getDepartmentSummary(selectedPeriod, selectedDepartment);
+  const metrics = getMetricsSummary(selectedDate || selectedMonth || 'overall', selectedDepartment);
+  const departmentSummary = getDepartmentSummary(selectedDate || selectedMonth || 'overall', selectedDepartment);
   const allDepartments = getDepartmentSummary();
   const trendData = getTrendData(selectedDepartment);
   const availableDates = getAvailableDates();
   const employeeCount = getEmployeeCount(selectedDepartment);
-  const { starters, terminations } = getStarterTerminationCounts(selectedPeriod);
+  const { starters, terminations } = getStarterTerminationCounts(selectedDate || selectedMonth || 'overall');
   const overtimeToPaymentRatio = metrics.totalPaymentAmount > 0 ? (metrics.totalOvertimeAmount / metrics.totalPaymentAmount) * 100 : 0;
 
   const handleUpdateEmployee = (employeeId: string, department: string, location: string) => {
@@ -151,7 +152,7 @@ export const HRDashboard = () => {
             {/* Time Filter */}
             <TimeFilter
               selectedPeriod={selectedPeriod}
-              onPeriodChange={setSelectedPeriod}
+              onSelectMonth={setSelectedMonth} onSelectDate={setSelectedDate} selectedMonth={selectedMonth} selectedDate={selectedDate}
               availableDates={availableDates}
             />
           </div>
