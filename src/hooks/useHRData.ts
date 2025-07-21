@@ -359,21 +359,6 @@ export const useHRData = () => {
   
   
 
-    const dateSet = new Set<string>();
-
-    const extractDates = (obj: any) => {
-      Object.values(obj || {}).forEach((dept: any) => {
-        Object.values(dept).forEach((location: any) => {
-          if (typeof location === 'object') {
-            Object.keys(location).forEach((dateKey) => {
-              if (/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
-                dateSet.add(dateKey);
-              }
-            });
-          }
-        });
-      });
-    };
 
     extractDates(data.Overtime);
     extractDates(data.Payment);
@@ -394,21 +379,6 @@ export const useHRData = () => {
   const getAvailableDates = (): { months: string[], datesByMonth: Record<string, string[]> } => {
     if (!data) return { months: [], datesByMonth: {} };
 
-    const dateSet = new Set<string>();
-
-    const extractDates = (obj: any) => {
-      Object.values(obj || {}).forEach((dept: any) => {
-        Object.values(dept).forEach((location: any) => {
-          if (typeof location === 'object') {
-            Object.keys(location).forEach((dateKey) => {
-              if (/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
-                dateSet.add(dateKey);
-              }
-            });
-          }
-        });
-      });
-    };
 
     extractDates(data.Overtime);
     extractDates(data.Payment);
@@ -437,3 +407,5 @@ return {
     getStarterTerminationCounts
   };
 };
+
+}
