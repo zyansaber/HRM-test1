@@ -2,15 +2,17 @@ import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 
 interface TimeFilterProps {
-  selectedPeriod: string;
-  onPeriodChange: (period: string) => void;
-  availableDates: string[];
+  selectedMonth: string | null;
+  selectedDate: string | null;
+  onSelectMonth: (month: string) => void;
+  onSelectDate: (date: string) => void;
+  availableDates: { months: string[], datesByMonth: Record<string, string[]> };
 }
 
-export const TimeFilter = ({ selectedPeriod, onPeriodChange, availableDates }: TimeFilterProps) => {
+export const TimeFilter = ({ selectedMonth, selectedDate, onSelectMonth, onSelectDate, availableDates }: TimeFilterProps) => {
   const groupedByMonth = useMemo(() => {
     const monthMap: Record<string, string[]> = {};
-    availableDates.forEach(date => {
+    Object.values(availableDates.datesByMonth).flat().forEach(date => {
       const month = date.slice(0, 7); // '2025-07'
       if (!monthMap[month]) monthMap[month] = [];
       monthMap[month].push(date);
@@ -25,7 +27,7 @@ export const TimeFilter = ({ selectedPeriod, onPeriodChange, availableDates }: T
       <div className="text-xs text-gray-400 uppercase tracking-wide">Time Period</div>
       <div className="grid grid-cols-3 gap-2">
         <button
-          onClick={() => onPeriodChange('overall')}
+          onClick={() => { onSelectMonth(null); onSelectDate(null); }}
           className={`py-2 text-sm rounded-md font-medium transition-colors border border-gray-200 hover:bg-gray-100 ${
             selectedPeriod === 'overall' ? 'bg-blue-100 text-blue-800' : 'bg-white'
           }`}
@@ -37,7 +39,7 @@ export const TimeFilter = ({ selectedPeriod, onPeriodChange, availableDates }: T
           return (
             <div key={month} className="relative">
               <button
-                onClick={() => onPeriodChange(month)}
+                onClick={() => { onSelectMonth(month); onSelectDate(null); }}
                 disabled={!hasData}
                 className={`w-full py-2 text-sm rounded-md font-medium transition-colors border border-gray-200 hover:bg-gray-100 ${
                   selectedPeriod === month ? 'bg-blue-100 text-blue-800' : 'bg-white'
@@ -55,13 +57,13 @@ export const TimeFilter = ({ selectedPeriod, onPeriodChange, availableDates }: T
         })}
       </div>
 
-      {selectedPeriod !== 'overall' && groupedByMonth[selectedPeriod] && (
+      {selectedPeriod !== 'overall' && selectedMonth ? availableDates.datesByMonth[selectedMonth] : [] && (
         <div className="flex flex-wrap gap-2 mt-2">
-          {groupedByMonth[selectedPeriod].map(date => (
+          {selectedMonth ? availableDates.datesByMonth[selectedMonth] : [].map(date => (
             <Badge
               key={date}
-              variant={selectedPeriod === date ? 'default' : 'secondary'}
-              onClick={() => onPeriodChange(date)}
+              variant={selectedDate === date ? 'default' : 'secondary'}
+              onClick={() => onSelectDate(date)}
               className="cursor-pointer"
             >
               {date}
