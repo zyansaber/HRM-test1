@@ -24,6 +24,7 @@ export const HRDashboard = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const selectedPeriod = selectedDate || selectedMonth || 'overall';
   const [activeTab, setActiveTab] = useState('dashboard');
 
   if (loading) {
