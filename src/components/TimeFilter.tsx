@@ -59,11 +59,13 @@ export const TimeFilter = ({ selectedMonth, selectedDate, onSelectMonth, onSelec
 
       {selectedPeriod !== 'overall' && selectedMonth ? availableDates.datesByMonth[selectedMonth] : [] && (
         <div className="flex flex-wrap gap-2 mt-2">
-          {selectedMonth ? availableDates.datesByMonth[selectedMonth] : [].map(date => (
-            <Badge
+  {selectedMonth && availableDates.datesByMonth[selectedMonth] && (
+    (availableDates.datesByMonth[selectedMonth] || []).map(date => (
+      <Badge
               key={date}
               variant={selectedDate === date ? 'default' : 'secondary'}
-              onClick={() => onSelectDate(date)}
+    ))
+  )}
               className="cursor-pointer"
             >
               {date}
