@@ -436,3 +436,6 @@ return {
     getEmployeeCount,
     getStarterTerminationCounts
   };
+};
+
+}
