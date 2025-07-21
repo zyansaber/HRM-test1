@@ -10,12 +10,12 @@ export const useHRData = () => {
   useEffect(() => {
     console.log('🚀 初始化Firebase连接...');
     setLoading(true);
-    
+
     const loadFirebaseData = async () => {
       try {
         console.log('📡 开始获取Firebase数据...');
         const firebaseData = await fetchHRData();
-        
+
         if (firebaseData && firebaseData.length > 0) {
           const data = firebaseData[0];
           console.log('✅ Firebase数据加载成功!');
@@ -25,7 +25,7 @@ export const useHRData = () => {
             hasOvertime: !!data.Overtime,
             hasBudget: !!data.Budget
           });
-          
+
           setData(data);
           setError(null);
         } else {
@@ -41,8 +41,7 @@ export const useHRData = () => {
     };
 
     loadFirebaseData();
-    
-    // 每30秒检查一次数据更新
+
     const interval = setInterval(() => {
       console.log('🔄 检查Firebase数据更新...');
       loadFirebaseData();
@@ -77,7 +76,6 @@ export const useHRData = () => {
       ? [selectedDepartment] 
       : Object.keys(data.Overtime || {});
 
-    // Calculate Overtime
     departmentsToProcess.forEach(dept => {
       if (data.Overtime?.[dept]) {
         Object.values(data.Overtime[dept]).forEach(location => {
@@ -91,7 +89,6 @@ export const useHRData = () => {
       }
     });
 
-    // Calculate Absenteeism
     departmentsToProcess.forEach(dept => {
       if (data.Absenteeism?.[dept]) {
         Object.values(data.Absenteeism[dept]).forEach(location => {
@@ -108,7 +105,6 @@ export const useHRData = () => {
       }
     });
 
-    // Calculate Payments
     departmentsToProcess.forEach(dept => {
       if (data.Payment?.[dept]) {
         Object.values(data.Payment[dept]).forEach(location => {
@@ -161,7 +157,6 @@ export const useHRData = () => {
         ? (key: string) => key === selectedPeriod
         : (key: string) => key.includes('2025-07');
 
-      // Overtime data
       if (data.Overtime?.[dept]) {
         Object.values(data.Overtime[dept]).forEach(location => {
           Object.entries(location).forEach(([key, value]) => {
@@ -173,7 +168,6 @@ export const useHRData = () => {
         });
       }
 
-      // Absenteeism data
       if (data.Absenteeism?.[dept]) {
         Object.values(data.Absenteeism[dept]).forEach(location => {
           Object.values(location).forEach(employee => {
@@ -188,7 +182,6 @@ export const useHRData = () => {
         });
       }
 
-      // Payment data
       if (data.Payment?.[dept]) {
         Object.values(data.Payment[dept]).forEach(location => {
           Object.values(location).forEach(employee => {
@@ -204,7 +197,6 @@ export const useHRData = () => {
         });
       }
 
-      // Budget data (July 2025)
       if (data.Budget?.[dept]?.[getCurrentMonth()]) {
         budget = parseAmount(data.Budget[dept][getCurrentMonth()].Budget);
       }
@@ -228,7 +220,7 @@ export const useHRData = () => {
     if (!data) return [];
 
     const dates = ['2025-07-02', '2025-07-09'];
-    
+
     return dates.map(date => {
       let overtime = 0;
       let absenteeism = 0;
@@ -239,7 +231,6 @@ export const useHRData = () => {
         : Object.keys(data.Overtime || {});
 
       departmentsToProcess.forEach(dept => {
-        // Overtime
         if (data.Overtime?.[dept]) {
           Object.values(data.Overtime[dept]).forEach(location => {
             const dayData = location[date];
@@ -249,7 +240,6 @@ export const useHRData = () => {
           });
         }
 
-        // Absenteeism
         if (data.Absenteeism?.[dept]) {
           Object.values(data.Absenteeism[dept]).forEach(location => {
             Object.values(location).forEach(employee => {
@@ -263,7 +253,6 @@ export const useHRData = () => {
           });
         }
 
-        // Payments
         if (data.Payment?.[dept]) {
           Object.values(data.Payment[dept]).forEach(location => {
             Object.values(location).forEach(employee => {
@@ -287,28 +276,43 @@ export const useHRData = () => {
     });
   };
 
-  const getAvailableDates = (): string[] => {
-    if (!data) return [];
-    
-    const dates = new Set<string>();
-    
-    // Extract dates from all data sources
-    Object.values(data.Overtime || {}).forEach(dept => {
-      Object.values(dept).forEach(location => {
-        Object.keys(location).forEach(key => {
-          if (key.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            dates.add(key);
+  const getAvailableDates = (): { months: string[], datesByMonth: Record<string, string[]> } => {
+    if (!data) return { months: [], datesByMonth: {} };
+
+    const dateSet = new Set<string>();
+
+    const extractDates = (obj: any) => {
+      Object.values(obj || {}).forEach((dept: any) => {
+        Object.values(dept).forEach((location: any) => {
+          if (typeof location === 'object') {
+            Object.keys(location).forEach((dateKey) => {
+              if (/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+                dateSet.add(dateKey);
+              }
+            });
           }
         });
       });
-    });
+    };
 
-    return Array.from(dates).sort();
+    extractDates(data.Overtime);
+    extractDates(data.Payment);
+    extractDates(data.Absenteeism);
+
+    const dates = Array.from(dateSet).sort();
+    const months = Array.from(new Set(dates.map(d => d.slice(0, 7)))).sort();
+
+    const datesByMonth: Record<string, string[]> = {};
+    for (const month of months) {
+      datesByMonth[month] = dates.filter(d => d.startsWith(month));
+    }
+
+    return { months, datesByMonth };
   };
 
   const getEmployeeCount = (selectedDepartment?: string | null): number => {
     if (!data) return 0;
-    
+
     let count = 0;
     const departmentsToProcess = selectedDepartment 
       ? [selectedDepartment] 
@@ -333,7 +337,7 @@ export const useHRData = () => {
     if (!data?.startertermination) return { starters: 0, terminations: 0 };
 
     const dateFilter = selectedPeriod && selectedPeriod.includes('-07-') ? selectedPeriod : '2025-07-09';
-    
+
     let starters = 0;
     let terminations = 0;
 
@@ -356,46 +360,7 @@ export const useHRData = () => {
     return { starters, terminations };
   };
 
-  
-  
-
-
-    extractDates(data.Overtime);
-    extractDates(data.Payment);
-    extractDates(data.Absenteeism);
-
-    const dates = Array.from(dateSet).sort();
-    const months = Array.from(new Set(dates.map(d => d.slice(0, 7)))).sort();
-
-    const datesByMonth: Record<string, string[]> = {};
-    for (const month of months) {
-      datesByMonth[month] = dates.filter(d => d.startsWith(month));
-    }
-
-    return { months, datesByMonth };
-  };
-
-
-  const getAvailableDates = (): { months: string[], datesByMonth: Record<string, string[]> } => {
-    if (!data) return { months: [], datesByMonth: {} };
-
-
-    extractDates(data.Overtime);
-    extractDates(data.Payment);
-    extractDates(data.Absenteeism);
-
-    const dates = Array.from(dateSet).sort();
-    const months = Array.from(new Set(dates.map(d => d.slice(0, 7)))).sort();
-
-    const datesByMonth: Record<string, string[]> = {};
-    for (const month of months) {
-      datesByMonth[month] = dates.filter(d => d.startsWith(month));
-    }
-
-    return { months, datesByMonth };
-  };
-
-return {
+  return {
     data,
     loading,
     error,
