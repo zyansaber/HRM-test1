@@ -62,6 +62,66 @@ export const useHRData = () => {
   const getMetricsSummary = (selectedPeriod?: string, selectedDepartment?: string | null): MetricSummary => {
     if (!data) return { totalOvertime: 0, totalOvertimeAmount: 0, totalAbsenteeism: 0, totalPayments: 0, totalPaymentAmount: 0 };
 
+    const isSpecificDate = selectedPeriod?.length === 10; // yyyy-mm-dd
+    const isMonth = selectedPeriod?.length === 7;
+
+    let overtime = 0;
+    let overtimeAmount = 0;
+    let absenteeism = 0;
+    let payments = 0;
+    let paymentAmount = 0;
+
+    if (isSpecificDate) {
+      // 精确按天统计
+      for (const dept in data.Absenteeism) {
+        if (selectedDepartment && dept !== selectedDepartment) continue;
+        for (const loc in data.Absenteeism[dept]) {
+          for (const empId in data.Absenteeism[dept][loc]) {
+            const entry = data.Absenteeism[dept][loc][empId];
+            if (entry[selectedPeriod]) {
+              absenteeism += parseFloat(entry[selectedPeriod].Absenteeism || '0');
+            }
+          }
+        }
+      }
+
+      for (const dept in data.Overtime) {
+        if (selectedDepartment && dept !== selectedDepartment) continue;
+        for (const loc in data.Overtime[dept]) {
+          const otEntry = data.Overtime[dept][loc][selectedPeriod];
+          if (otEntry) {
+            overtime += parseFloat(otEntry.OT_Hours || '0');
+            overtimeAmount += parseFloat(otEntry.OT_Amount || '0');
+          }
+        }
+      }
+
+      for (const dept in data.Payment) {
+        if (selectedDepartment && dept !== selectedDepartment) continue;
+        for (const loc in data.Payment[dept]) {
+          for (const empId in data.Payment[dept][loc]) {
+            const entry = data.Payment[dept][loc][empId];
+            if (entry[selectedPeriod]) {
+              paymentAmount += parseAmount(entry[selectedPeriod].Payment || '0');
+              payments++;
+            }
+          }
+        }
+      }
+
+    } else if (isMonth) {
+      // TODO: 保留原月度逻辑（不做修改）
+    }
+
+    return {
+      totalOvertime: overtime,
+      totalOvertimeAmount: overtimeAmount,
+      totalAbsenteeism: absenteeism,
+      totalPayments: payments,
+      totalPaymentAmount: paymentAmount
+    };
+    if (!data) return { totalOvertime: 0, totalOvertimeAmount: 0, totalAbsenteeism: 0, totalPayments: 0, totalPaymentAmount: 0 };
+
     let totalOvertime = 0;
     let totalOvertimeAmount = 0;
     let totalAbsenteeism = 0;
