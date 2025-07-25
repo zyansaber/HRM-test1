@@ -60,7 +60,48 @@ export const useHRData = () => {
   };
 
   const getMetricsSummary = (selectedPeriod?: string, selectedDepartment?: string | null): MetricSummary => {
-    if (!data) return { totalOvertime: 0, totalOvertimeAmount: 0, totalAbsenteeism: 0, totalPayments: 0, totalPaymentAmount: 0 };
+    if (!data) 
+
+  const getAvailableDates = () => {
+    const allDates: Set<string> = new Set();
+
+    const collectDates = (node: any, isLeafDate = false) => {
+      if (!node || typeof node !== 'object') return;
+      for (const key of Object.keys(node)) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(key)) {
+          allDates.add(key);
+        } else {
+          collectDates(node[key]);
+        }
+      }
+    };
+
+    collectDates(data?.Absenteeism);
+    collectDates(data?.Overtime);
+    collectDates(data?.Payment);
+
+    const months: Set<string> = new Set();
+    const datesByMonth: Record<string, string[]> = {};
+
+    for (const date of allDates) {
+      const month = date.slice(0, 7);
+      months.add(month);
+      if (!datesByMonth[month]) datesByMonth[month] = [];
+      datesByMonth[month].push(date);
+    }
+
+    const sortedMonths = Array.from(months).sort();
+    for (const month of sortedMonths) {
+      datesByMonth[month].sort();
+    }
+
+    return {
+      months: sortedMonths,
+      datesByMonth
+    };
+  };
+
+  return { totalOvertime: 0, totalOvertimeAmount: 0, totalAbsenteeism: 0, totalPayments: 0, totalPaymentAmount: 0 };
 
     const isSpecificDate = selectedPeriod?.length === 10; // yyyy-mm-dd
     const isMonth = selectedPeriod?.length === 7;
